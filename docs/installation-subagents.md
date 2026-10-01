@@ -1,76 +1,62 @@
 # Install pi-subagents for pi
 
-[@tintinweb/pi-subagents](https://pi.dev/packages/@tintinweb/pi-subagents) adds Claude Code-style autonomous sub-agents to pi. Each spawned agent runs in its own isolated session with its own tools, system prompt, model, and thinking level; you can run them in the foreground or background, steer them while they work, and declare custom agent types in `.pi/agents/*.md` (project) or globally.
+[pi-subagents](https://pi.dev/packages/pi-subagents) lets Pi delegate work to focused child agents — code review, scouting, implementation, parallel audits, saved workflows, background jobs. It ships ready-to-use agents and a `subagent` tool, and Pi decides when to call it, so you can ask in plain language instead of configuring anything first.
 
 ## Install
 
 ```bash
-pi install npm:@tintinweb/pi-subagents
+pi install npm:pi-subagents
 ```
 
-The extension is recorded in your global pi settings (`~/.pi/agent/settings.json`) and picked up on startup.
+This adds the extension to your global pi settings (`~/.pi/agent/settings.json`). Pi auto-discovers it on startup, and the package also registers its own prompt shortcuts (`/parallel-review`, `/review-loop`, `/council`, …) and skills.
 
-> Install at the **global** level: the sub-agent tools (`Agent`, `get_subagent_result`, `steer_subagent`) are session-level capabilities — one install covers every project. Per-project agent definitions still work through `.pi/agents/*.md`.
+> Install at the **global** level: delegation is a session-level capability — one install covers every project. Per-project agent definitions can still be added under `.pi/agents/`.
 
 ## Verify
 
 In a fresh `pi` session:
 
-- the `Agent` tool is available to the model whenever it decides to delegate work;
-- `/agents` opens the FleetView — a navigable list of the main session plus any running sub-agents.
+- Ask in plain language, e.g. *"Use reviewer to review this diff."* — Pi calls the `subagent` tool and the child's progress streams in the conversation.
+- `/subagents-fleet` opens the live inspector: browse children, read transcripts, steer a running child, or stop a run.
+- `/subagents-doctor` checks that subagents are configured correctly.
+- `/subagents-guide` prints help for the installed version; `/subagents-guide workflows` covers orchestration patterns.
 
 ## Activate
 
 Restart pi, or run `/reload` in the current session.
 
+## Built-in agents
+
+| Agent | Use it for |
+| --- | --- |
+| `scout` | Fast local codebase recon: relevant files, entry points, data flow, risks |
+| `researcher` | Web and docs research with sources and a concise brief |
+| `evidence-auditor` | Checks whether important research claims are supported by their sources |
+| `worker` | Implementation work: edits files, validates, escalates unapproved decisions |
+| `reviewer` | Code review and small fixes against the task, tests, edge cases, and simplicity |
+| `oracle` | A second opinion before acting; challenges assumptions without editing |
+| `delegate` | A lightweight general delegate that behaves close to the parent session |
+
+A practical default loop for implementation work is `clarify → scout → worker → fresh reviewers → worker`.
+
+## Background runs
+
+Foreground runs stream progress in the conversation; background runs keep working after control returns to you. While work is active, a persistent FleetView sits below the editor, and `/subagents-fleet` opens the full inspector. You can also just ask: *"Show me the current async runs."*
+
 ## Configure
 
-### The `/agents` command
+Optional. Config lives at `~/.pi/agent/extensions/subagent/config.json`; without the file the defaults apply. Keys cover model and thinking defaults, concurrency, per-run spawn limits (`maxSubagentSpawnsPerRun`, default 64), and watchdog options. The package's `docs/configuration.md` lists every key and environment variable.
 
-FleetView is where you inspect, navigate, and steer running sub-agents:
-
-- `↓` / `←` on an empty prompt — jump into FleetView
-- `↑` / `↓` — move the selection
-- `Enter` — open the selected agent's live, auto-updating conversation
-- `Esc` — go back to the main session
-- `Enter` on a running agent — open an inline composer to steer it; `Enter` sends, `Esc` or an empty submit cancels
-- `x`, then `x` again to confirm — stop a running agent
-
-Completed agents stay in the list briefly before disappearing, and the conversation viewer remains open so you can read the final output.
-
-### Widget visibility
-
-`/agents → Settings → Widget`:
-
-- `all` — show foreground and background agents
-- `background` (default) — hide foreground runs, which already render inline as `Agent` tool results
-- `off` — turn the persistent widget off
-
-### Custom agent types
-
-Declare agents in `.pi/agents/*.md` (project) or `~/.pi/agent/agents/*.md` (global) with YAML frontmatter:
-
-```markdown
----
-name: reviewer
-description: Reviews code for correctness and style
-model: sonnet
-thinking: medium
----
-
-You are a senior engineer reviewing code for correctness, style, and edge cases.
-```
-
-Frontmatter keys include `name`, `description`, `model`, `thinking`, and `tools` (limit the agent to a subset of tools). Custom types are auto-discovered and offered to the main agent next to the built-in ones.
+Custom agents are markdown files with frontmatter, discovered from `.pi/agents/` (project) and `~/.pi/agent/agents/` (global); they can override the built-ins.
 
 ## Uninstall
 
 ```bash
-pi remove npm:@tintinweb/pi-subagents
+pi remove npm:pi-subagents
 ```
-
-This removes the entry from `~/.pi/agent/settings.json`; custom agent definitions under `.pi/agents/` and `~/.pi/agent/agents/` are left alone.
 
 ## Scope
 
-pi-subagents adds sub-agent tools and the FleetView UI. It does not change the main agent's behavior, system prompt, or default tool list.
+- Adds the `subagent` tool, the packaged prompts and skills, and the fleet UI. It does not otherwise change the main agent's behavior.
+- Agents that do web research need `pi-web-access` available to the child session — see the package's agents documentation.
+- Source and full reference: [nicobailon/pi-subagents](https://github.com/nicobailon/pi-subagents).

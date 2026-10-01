@@ -159,7 +159,7 @@ kickstart.pi is meant to be understood, not just installed.
 
 **Additional features:**
 
-- **[`docs/installation-subagents.md`](installation-subagents.md)** — Claude Code-style autonomous sub-agents
+- **[`docs/installation-subagents.md`](installation-subagents.md)** — delegate work to focused child agents (scout / worker / reviewer / oracle)
 - **[`docs/installation-permission-system.md`](installation-permission-system.md)** — deterministic allow / ask / deny gates for tools, bash, MCP, and skills
 - **[`docs/installation-agent-browser.md`](installation-agent-browser.md)** — browser automation via CDP (global skill)
 - **[`docs/installation-frontend-image-to-code.md`](installation-frontend-image-to-code.md)** — the bundled image-to-code skill

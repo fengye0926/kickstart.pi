@@ -2,7 +2,7 @@
 
 [@gotgenes/pi-permission-system](https://pi.dev/packages/@gotgenes/pi-permission-system) is a permission enforcement extension: it gates tool, bash, MCP, and skill calls against a single policy file. Every decision is one of `allow` / `deny` / `ask`, and the policy is layered — `path` → `external_directory` → per-tool patterns → `bash` patterns — with a UI confirmation dialog for anything that isn't pre-approved.
 
-> **Sub-agents inherit the same policy.** This setup runs [`@tintinweb/pi-subagents`](https://pi.dev/packages/@tintinweb/pi-subagents), whose agents execute as non-UI child sessions. The permission system forwards `ask` prompts from those sessions up to the parent's dialog, so a sub-agent's tool calls are gated by the same rules as the main agent — no separate configuration. The package ships native integration for its own sibling sub-agent package; with a different plugin the forwarding still applies because the child session has no UI of its own. Verify it once with step 4 below.
+> **Sub-agents inherit the same policy.** This setup runs [`pi-subagents`](https://pi.dev/packages/pi-subagents), whose children execute as non-UI sessions. The permission system forwards `ask` prompts from those sessions up to the parent's dialog, so a child's tool calls are gated by the same rules as the main agent — no separate configuration. Verify it once with step 4 below.
 
 ## Install
 

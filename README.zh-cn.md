@@ -89,7 +89,7 @@ kickstart.pi/
     ├── installation-open-tui.md              ← pi-open-tui 界面美化（全局）
     ├── installation-rtk.md                   ← 省 token 的 bash 改写器（全局）
     ├── installation-matt-pocock-skills.md    ← 工程技能集（全局）
-    ├── installation-subagents.md             ← @tintinweb/pi-subagents（全局）
+    ├── installation-subagents.md             ← pi-subagents（全局）
     ├── installation-permission-system.md     ← 工具、bash、MCP、skill 的权限闸门（全局）
     ├── installation-rpiv-todo.md             ← 常驻任务面板（全局）
     ├── installation-ask-user-question.md     ← 结构化提问弹窗（全局）
@@ -244,7 +244,7 @@ https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/i
 
 ### subagents
 
-[@tintinweb/pi-subagents](https://pi.dev/packages/@tintinweb/pi-subagents) 为 pi 带来 Claude Code 风格的自主 sub-agent——在独立会话中派生专门的 agent，每个都有自己的工具、系统提示、模型和思考等级。支持前台 / 后台运行、中途介入，也可以通过 `.pi/agents/*.md`（项目级）或全局定义自己的 agent 类型。
+[pi-subagents](https://pi.dev/packages/pi-subagents) 让 Pi 把工作委派给专门的子 agent——代码审查、代码勘察、实现、并行审计、可保存的工作流、后台任务。它自带开箱可用的 agent（`scout`、`researcher`、`worker`、`reviewer`、`oracle`、`delegate`）和 `subagent` 工具，直接用自然语言就能用——「Use reviewer to review this diff.」——不需要先做任何配置。
 
 建议**全局安装**。把下面这段粘贴到 pi：
 
@@ -253,7 +253,7 @@ Read the installation guide and follow it:
 https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/installation-subagents.md
 ```
 
-装好后 `/agents` 在 pi 里管理、查看、介入 sub-agent。
+装好后用 `/subagents-fleet` 查看、介入或停止正在运行的子 agent，用 `/subagents-doctor` 检查配置。
 
 ### pi-permission-system
 

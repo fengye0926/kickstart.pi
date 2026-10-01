@@ -89,7 +89,7 @@ kickstart.pi/
     ├── installation-open-tui.md              ← pi-open-tui TUI polish (global)
     ├── installation-rtk.md                   ← token-saving bash rewriter (global)
     ├── installation-matt-pocock-skills.md    ← engineering skills (global)
-    ├── installation-subagents.md             ← @tintinweb/pi-subagents (global)
+    ├── installation-subagents.md             ← pi-subagents (global)
     ├── installation-permission-system.md     ← permission gates for tools, bash, MCP, skills (global)
     ├── installation-rpiv-todo.md             ← persistent todo panel (global)
     ├── installation-ask-user-question.md     ← structured question dialogs (global)
@@ -244,7 +244,7 @@ Then `/lsp` to check which configured server commands are available on `PATH`.
 
 ### subagents
 
-[@tintinweb/pi-subagents](https://pi.dev/packages/@tintinweb/pi-subagents) brings Claude Code-style autonomous sub-agents to pi — spawn specialized agents in isolated sessions, each with its own tools, system prompt, model, and thinking level. Run them in the foreground or background, steer them mid-run, and define your own agent types via `.pi/agents/*.md` (project) or globally.
+[pi-subagents](https://pi.dev/packages/pi-subagents) lets Pi delegate work to focused child agents — code review, scouting, implementation, parallel audits, saved workflows, background jobs. It ships ready-to-use agents (`scout`, `researcher`, `worker`, `reviewer`, `oracle`, `delegate`) and a `subagent` tool, so you can ask in plain language — *"Use reviewer to review this diff."* — instead of configuring anything first.
 
 Install at the **global** level. Paste this into pi:
 
@@ -253,7 +253,7 @@ Read the installation guide and follow it:
 https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/installation-subagents.md
 ```
 
-Then `/agents` to manage, inspect, and steer sub-agents from inside pi.
+Then `/subagents-fleet` to inspect, steer, or stop running children, and `/subagents-doctor` to check the setup.
 
 ### pi-permission-system
 
