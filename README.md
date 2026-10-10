@@ -60,9 +60,12 @@ https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/i
 mkdir -p ~/.pi/agent
 repo_dir="$(mktemp -d)"
 git clone https://github.com/fengye0926/kickstart.pi "$repo_dir"
+rm -rf "$repo_dir/.git"
 cp -an "$repo_dir"/. ~/.pi/agent/
 rm -rf "$repo_dir"
 ```
+
+The clone's `.git` is deleted first — `cp -an` copies dotfiles too, so leaving it in place would turn `~/.pi/agent/` into a checkout of this repository.
 
 Then start pi in any project:
 

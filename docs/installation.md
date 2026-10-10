@@ -29,11 +29,20 @@ If this document is handed to an Agent with an explicit request to install kicks
 mkdir -p ~/.pi/agent
 repo_dir="$(mktemp -d)"
 git clone https://github.com/fengye0926/kickstart.pi "$repo_dir"
+rm -rf "$repo_dir/.git"
 cp -an "$repo_dir"/. ~/.pi/agent/
 rm -rf "$repo_dir"
 ```
 
+`rm -rf "$repo_dir/.git"` runs on the temporary clone before the copy, because `cp -an "$repo_dir"/.` includes dotfiles: without it, the clone's git history lands in `~/.pi/agent/` and the agent directory becomes a checkout of this repository.
+
 Files like `auth.json`, `models-store.json`, `settings.json`, and `sessions/` stay as they are. With no existing config, the same commands simply create the directory and lay down the repository files.
+
+> If you installed from an earlier version of this guide, `~/.pi/agent/.git` may already be there. It is a stray copy of this repository's history, not part of your pi configuration, and can be removed:
+>
+> ```bash
+> rm -rf ~/.pi/agent/.git
+> ```
 
 ## Step 2: Install MCP Servers
 

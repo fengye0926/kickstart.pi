@@ -60,9 +60,12 @@ https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/i
 mkdir -p ~/.pi/agent
 repo_dir="$(mktemp -d)"
 git clone https://github.com/fengye0926/kickstart.pi "$repo_dir"
+rm -rf "$repo_dir/.git"
 cp -an "$repo_dir"/. ~/.pi/agent/
 rm -rf "$repo_dir"
 ```
+
+先删掉克隆里的 `.git`：`cp -an` 会把点文件一起复制，留着它会让 `~/.pi/agent/` 变成本仓库的一个工作副本。
 
 之后在任何项目目录下启动 pi：
 
