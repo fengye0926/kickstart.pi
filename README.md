@@ -85,7 +85,7 @@ kickstart.pi/
 ├── README.md            ← you are here
 ├── README.zh-cn.md      ← Chinese version
 ├── skills/
-│   └── frontend-image-to-code/
+│   └── design-image-to-code/
 │       └── SKILL.md     ← bundled skill: design image → working frontend code
 └── docs/
     ├── installation.md                       ← MCP setup: native MCP + exa / context7 / searchcode
@@ -98,7 +98,7 @@ kickstart.pi/
     ├── installation-ask-user-question.md     ← structured question dialogs (global)
     ├── installation-pi-lsp.md                ← targeted LSP diagnostics and fixes (global)
     ├── installation-agent-browser.md         ← browser automation skill (global)
-    └── installation-frontend-image-to-code.md ← the bundled skill (global)
+    └── installation-design-image-to-code.md ← the bundled skill (global)
 ```
 
 That's it. No `settings.json`, no agents, no bundled extensions — just the guides under [`docs/`](docs) and one example skill. The one required piece of setup is the three MCP servers configured in Step 2 of [`docs/installation.md`](docs/installation.md) (`context7`, `searchcode`, `exa`) — Pi speaks MCP natively, so no adapter package is needed.
@@ -110,7 +110,7 @@ That's it. No `settings.json`, no agents, no bundled extensions — just the gui
 1. **Read `README.md` from top to bottom** — understand the philosophy and what's available.
 2. **Decide what goes in your `~/.pi/agent/settings.json`** — this repo ships no config by design. Set your preferred provider, model, and theme; pi walks you through this on first launch.
 3. **Configure the three MCP servers** — Pi has native MCP support; follow Step 2 and Step 3 of [`docs/installation.md`](docs/installation.md). They're what the global `AGENTS.md` queries.
-4. **Install the global add-ons you want** — [pi-open-tui](docs/installation-open-tui.md), [rtk](docs/installation-rtk.md), [mattpocock/skills](docs/installation-matt-pocock-skills.md), [pi-subagents](docs/installation-subagents.md), [pi-permission-system](docs/installation-permission-system.md), [rpiv-todo](docs/installation-rpiv-todo.md), [ask-user-question](docs/installation-ask-user-question.md), [pi-lsp](docs/installation-pi-lsp.md), [agent-browser](docs/installation-agent-browser.md), and the bundled [frontend-image-to-code](docs/installation-frontend-image-to-code.md). Use `pi list` to see what's installed and `pi config` to enable or disable resources.
+4. **Install the global add-ons you want** — [pi-open-tui](docs/installation-open-tui.md), [rtk](docs/installation-rtk.md), [mattpocock/skills](docs/installation-matt-pocock-skills.md), [pi-subagents](docs/installation-subagents.md), [pi-permission-system](docs/installation-permission-system.md), [rpiv-todo](docs/installation-rpiv-todo.md), [ask-user-question](docs/installation-ask-user-question.md), [pi-lsp](docs/installation-pi-lsp.md), [agent-browser](docs/installation-agent-browser.md), and the bundled [design-image-to-code](docs/installation-design-image-to-code.md). Use `pi list` to see what's installed and `pi config` to enable or disable resources.
 5. **Customize the global `AGENTS.md`** — MCP usage hints, language preference, working style, skill routing.
 6. **Add project-level `AGENTS.md`** in repos that need it — project structure, tech stack, coding conventions.
 7. **Create your own prompt templates** in `.pi/prompts/` for repetitive workflows (`/your-command`).
@@ -282,18 +282,20 @@ Read the installation guide and follow it:
 https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/installation-agent-browser.md
 ```
 
-### frontend-image-to-code
+### design-image-to-code
 
-This repo bundles one skill: [`frontend-image-to-code`](skills/frontend-image-to-code/SKILL.md). Give the agent a screenshot, mockup, or Figma export, and it derives an implementable spec, maps it onto the existing project stack, implements it, and compares a rendered result against the reference — without inventing a new visual direction. The skill text is written in Chinese.
+This repo bundles [`design-image-to-code`](skills/design-image-to-code/SKILL.md): translate a designer-provided screenshot, mockup, Figma export, or local design image into an existing frontend, without inventing a new visual direction. The skill text is written in Chinese.
+
+Images define the target structure; annotations supply explicit values and asset mappings, with conflicts recorded rather than silently resolved. Region IDs connect the spec, code changes, and rendered comparisons. Implementation, visual verification, and code checks are reported separately: a missing renderer or unconfirmed viewport remains pending, even when code is delivered. See the [installation guide](docs/installation-design-image-to-code.md) for the evidence rules and delivery labels.
 
 Install at the **global** level (from a clone of this repo):
 
 ```bash
 mkdir -p ~/.pi/agent/skills
-cp -R skills/frontend-image-to-code ~/.pi/agent/skills/
+cp -R skills/design-image-to-code ~/.pi/agent/skills/
 ```
 
-Details and verification steps: [`docs/installation-frontend-image-to-code.md`](docs/installation-frontend-image-to-code.md).
+Details and verification steps: [`docs/installation-design-image-to-code.md`](docs/installation-design-image-to-code.md).
 
 ---
 
@@ -309,7 +311,7 @@ pi also auto-discovers `AGENTS.md` / `CLAUDE.md` walking up from the cwd, so a p
 - **Language preference** — e.g. `Reply in Chinese.`
 - **Personal coding preferences** — e.g. `Never use any type. Prefer explicit types.`
 - **Working style** — e.g. `Keep responses concise. No need to explain obvious steps.`
-- **Skill routing** — e.g. `For screenshot → frontend code requests, use frontend-image-to-code.`
+- **Skill routing** — e.g. `For design image → frontend code requests, use design-image-to-code.`
 
 **Project-level `AGENTS.md`** goes in the project root, describing project structure, tech stack, development standards, etc. It overrides the global for that project.
 

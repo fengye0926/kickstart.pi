@@ -115,7 +115,7 @@ When you install the bundled skill (see [Optional Extras](#optional-extras)), ad
 ```markdown
 ## Frontend workflow
 
-- For requests that include a screenshot, mockup, Figma export, or visual reference and ask to translate that specific interface into frontend code, use `frontend-image-to-code`.
+- For requests that provide a design image (screenshot, mockup, Figma export, or local reference image, optionally with design annotations) and ask to translate that specific interface into frontend code, use `design-image-to-code`.
 ```
 
 ## Tip
@@ -127,7 +127,7 @@ That's the core install. Everything else in this document is optional, and every
 - **Agentic workflow** — [mattpocock/skills](installation-matt-pocock-skills.md)
 - **Session interaction** — [rpiv-todo](installation-rpiv-todo.md), [ask-user-question](installation-ask-user-question.md)
 - **Code intelligence** — [pi-lsp](installation-pi-lsp.md)
-- **Additional features** — [pi-subagents](installation-subagents.md), [pi-permission-system](installation-permission-system.md), [agent-browser](installation-agent-browser.md), [frontend-image-to-code](installation-frontend-image-to-code.md)
+- **Additional features** — [pi-subagents](installation-subagents.md), [pi-permission-system](installation-permission-system.md), [agent-browser](installation-agent-browser.md), [design-image-to-code](installation-design-image-to-code.md)
 
 Take what fits your workflow, or skip ahead and start using pi.
 
@@ -171,4 +171,4 @@ kickstart.pi is meant to be understood, not just installed.
 - **[`docs/installation-subagents.md`](installation-subagents.md)** — delegate work to focused child agents (scout / worker / reviewer / oracle)
 - **[`docs/installation-permission-system.md`](installation-permission-system.md)** — deterministic allow / ask / deny gates for tools, bash, MCP, and skills
 - **[`docs/installation-agent-browser.md`](installation-agent-browser.md)** — browser automation via CDP (global skill)
-- **[`docs/installation-frontend-image-to-code.md`](installation-frontend-image-to-code.md)** — the bundled image-to-code skill
+- **[`docs/installation-design-image-to-code.md`](installation-design-image-to-code.md)** — the bundled design-image-to-code skill

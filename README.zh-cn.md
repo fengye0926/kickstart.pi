@@ -85,8 +85,8 @@ kickstart.pi/
 ├── README.md            ← 你正在阅读的英文版
 ├── README.zh-cn.md      ← 你正在阅读的这份
 ├── skills/
-│   └── frontend-image-to-code/
-│       └── SKILL.md     ← 内置技能：设计图 → 可用的前端代码
+│   └── design-image-to-code/
+│       └── SKILL.md     ← 内置技能：设计师的设计图 → 可用的前端代码
 └── docs/
     ├── installation.md                       ← MCP 配置：内置 MCP + exa / context7 / searchcode
     ├── installation-open-tui.md              ← pi-open-tui 界面美化（全局）
@@ -98,7 +98,7 @@ kickstart.pi/
     ├── installation-ask-user-question.md     ← 结构化提问弹窗（全局）
     ├── installation-pi-lsp.md                ← 定向 LSP 诊断与修复（全局）
     ├── installation-agent-browser.md         ← 浏览器自动化技能（全局）
-    └── installation-frontend-image-to-code.md ← 内置技能（全局）
+    └── installation-design-image-to-code.md ← 内置技能（全局）
 ```
 
 就这些。没有 `settings.json`、没有 agent、没有内置扩展——只有 [`docs/`](docs) 下的指南和一个示例技能。唯一必须配置的是三个 MCP 服务器，见 [`docs/installation.md`](docs/installation.md) 的 Step 2（`context7`、`searchcode`、`exa`）——Pi 原生支持 MCP，不需要 adapter 包。
@@ -110,7 +110,7 @@ kickstart.pi/
 1. **通读 `README.md`** —— 理解设计理念与可用组件。
 2. **决定 `~/.pi/agent/settings.json` 里放什么** —— 本仓库有意不带配置。选好 provider、model、theme；pi 首次启动会引导你完成。
 3. **配置三个 MCP 服务器** —— Pi 已原生支持 MCP；按 [`docs/installation.md`](docs/installation.md) 的 Step 2 和 Step 3 操作。全局 `AGENTS.md` 引用的就是它们。
-4. **按需安装全局组件** —— [pi-open-tui](docs/installation-open-tui.md)、[rtk](docs/installation-rtk.md)、[mattpocock/skills](docs/installation-matt-pocock-skills.md)、[pi-subagents](docs/installation-subagents.md)、[pi-permission-system](docs/installation-permission-system.md)、[rpiv-todo](docs/installation-rpiv-todo.md)、[ask-user-question](docs/installation-ask-user-question.md)、[pi-lsp](docs/installation-pi-lsp.md)、[agent-browser](docs/installation-agent-browser.md)，以及内置的 [frontend-image-to-code](docs/installation-frontend-image-to-code.md)。用 `pi list` 查看已装内容，用 `pi config` 启用或禁用资源。
+4. **按需安装全局组件** —— [pi-open-tui](docs/installation-open-tui.md)、[rtk](docs/installation-rtk.md)、[mattpocock/skills](docs/installation-matt-pocock-skills.md)、[pi-subagents](docs/installation-subagents.md)、[pi-permission-system](docs/installation-permission-system.md)、[rpiv-todo](docs/installation-rpiv-todo.md)、[ask-user-question](docs/installation-ask-user-question.md)、[pi-lsp](docs/installation-pi-lsp.md)、[agent-browser](docs/installation-agent-browser.md)，以及内置的 [design-image-to-code](docs/installation-design-image-to-code.md)。用 `pi list` 查看已装内容，用 `pi config` 启用或禁用资源。
 5. **定制全局 `AGENTS.md`** —— MCP 使用提示、语言偏好、做事风格、技能路由。
 6. **在需要的项目里加项目级 `AGENTS.md`** —— 项目结构、技术栈、编码规范。
 7. **在 `.pi/prompts/` 里写自己的 prompt 模板** —— 把重复流程做成 `/your-command` 斜杠命令。
@@ -282,18 +282,20 @@ Read the installation guide and follow it:
 https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/installation-agent-browser.md
 ```
 
-### frontend-image-to-code
+### design-image-to-code
 
-本仓库内置一个技能：[`frontend-image-to-code`](skills/frontend-image-to-code/SKILL.md)。把截图、Mockup 或 Figma 导出图交给 agent，它会先解析出可实现规格，再映射到现有项目技术栈，完成实现，并用渲染结果对照参考图——不会自创另一套视觉方向。技能正文使用中文。
+本仓库内置 [`design-image-to-code`](skills/design-image-to-code/SKILL.md)：把设计师提供的截图、Mockup、Figma 导出图或本地设计图翻译成现有项目中的前端代码，不另创视觉方向。技能正文使用中文。
+
+设计图确定目标结构，标注提供明确数值与资产对应关系，冲突记入清单而非静默消解。区域 ID 串联规格、代码改动和渲染对照。交付时分别报告实现、视觉验证与代码检查结果：即使已交付代码，无法渲染或 viewport 尚未确认仍标为待验证。证据规则与交付标签见[安装指南](docs/installation-design-image-to-code.md)。
 
 建议**全局安装**（在本仓库克隆目录里执行）：
 
 ```bash
 mkdir -p ~/.pi/agent/skills
-cp -R skills/frontend-image-to-code ~/.pi/agent/skills/
+cp -R skills/design-image-to-code ~/.pi/agent/skills/
 ```
 
-详细说明与验证方式见 [`docs/installation-frontend-image-to-code.md`](docs/installation-frontend-image-to-code.md)。
+详细说明与验证方式见 [`docs/installation-design-image-to-code.md`](docs/installation-design-image-to-code.md)。
 
 ---
 
@@ -309,7 +311,7 @@ pi 还会从 cwd 向上自动发现 `AGENTS.md` / `CLAUDE.md`，所以项目根�
 - **语言偏好** — 如 `Reply in Chinese.`
 - **个人编码偏好** — 如 `Never use any type. Prefer explicit types.`
 - **做事风格** — 如 `Keep responses concise. No need to explain obvious steps.`
-- **技能路由** — 如 `For screenshot → frontend code requests, use frontend-image-to-code.`
+- **技能路由** — 如 `For design image → frontend code requests, use design-image-to-code.`
 
 **项目级 `AGENTS.md`** 放在项目根目录，描述项目结构、技术栈、开发规范等。在该项目中会覆盖全局设置。
 
