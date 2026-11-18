@@ -36,7 +36,7 @@
 - 每份指南都短小、只讲一个组件
 - 每个决定都解释原因，不只是展示结果
 - 只收录本配置实际使用的组件——不堆砌用不上的清单
-- 全部**全局安装**（`~/.pi/agent/`），一次安装覆盖所有项目
+- 全部**全局安装**（`~/.pi/agent/`），一次安装覆盖所有项目——只有 [pi-permission-system](docs/installation-permission-system.md) 例外，它按项目安装，因为策略属于具体仓库
 - 它是起点，不是框架——添加自己的设置，删掉用不到的
 
 ---
@@ -93,7 +93,7 @@ kickstart.pi/
     ├── installation-rtk.md                   ← 省 token 的 bash 改写器（全局）
     ├── installation-matt-pocock-skills.md    ← 工程技能集（全局）
     ├── installation-subagents.md             ← pi-subagents（全局）
-    ├── installation-permission-system.md     ← 工具、bash、MCP、skill 的权限闸门（全局）
+    ├── installation-permission-system.md     ← 工具、bash、MCP、skill 的权限闸门（按项目安装）
     ├── installation-rpiv-todo.md             ← 常驻任务面板（全局）
     ├── installation-ask-user-question.md     ← 结构化提问弹窗（全局）
     ├── installation-pi-lsp.md                ← 定向 LSP 诊断与修复（全局）
@@ -110,7 +110,7 @@ kickstart.pi/
 1. **通读 `README.md`** —— 理解设计理念与可用组件。
 2. **决定 `~/.pi/agent/settings.json` 里放什么** —— 本仓库有意不带配置。选好 provider、model、theme；pi 首次启动会引导你完成。
 3. **配置三个 MCP 服务器** —— Pi 已原生支持 MCP；按 [`docs/installation.md`](docs/installation.md) 的 Step 2 和 Step 3 操作。全局 `AGENTS.md` 引用的就是它们。
-4. **按需安装全局组件** —— [pi-open-tui](docs/installation-open-tui.md)、[rtk](docs/installation-rtk.md)、[mattpocock/skills](docs/installation-matt-pocock-skills.md)、[pi-subagents](docs/installation-subagents.md)、[pi-permission-system](docs/installation-permission-system.md)、[rpiv-todo](docs/installation-rpiv-todo.md)、[ask-user-question](docs/installation-ask-user-question.md)、[pi-lsp](docs/installation-pi-lsp.md)、[agent-browser](docs/installation-agent-browser.md)，以及内置的 [design-image-to-code](docs/installation-design-image-to-code.md)。用 `pi list` 查看已装内容，用 `pi config` 启用或禁用资源。
+4. **按需安装组件** —— [pi-open-tui](docs/installation-open-tui.md)、[rtk](docs/installation-rtk.md)、[mattpocock/skills](docs/installation-matt-pocock-skills.md)、[pi-subagents](docs/installation-subagents.md)、[pi-permission-system](docs/installation-permission-system.md)、[rpiv-todo](docs/installation-rpiv-todo.md)、[ask-user-question](docs/installation-ask-user-question.md)、[pi-lsp](docs/installation-pi-lsp.md)、[agent-browser](docs/installation-agent-browser.md)，以及内置的 [design-image-to-code](docs/installation-design-image-to-code.md)。除 pi-permission-system 按项目安装外，其余都是全局安装。用 `pi list` 查看已装内容，用 `pi config` 启用或禁用资源。
 5. **定制全局 `AGENTS.md`** —— MCP 使用提示、语言偏好、做事风格、技能路由。
 6. **在需要的项目里加项目级 `AGENTS.md`** —— 项目结构、技术栈、编码规范。
 7. **在 `.pi/prompts/` 里写自己的 prompt 模板** —— 把重复流程做成 `/your-command` 斜杠命令。
@@ -260,16 +260,16 @@ https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/i
 
 ### pi-permission-system
 
-[@gotgenes/pi-permission-system](https://pi.dev/packages/@gotgenes/pi-permission-system) 在 agent 与每次工具、bash、MCP、skill 调用之间放一道确定性权限闸门。三种状态（`allow` / `deny` / `ask`）加四层权限面（`path` → `external_directory` → 工具级规则 → `bash` 规则）覆盖了编码 agent 的大部分操作；没有预先放行的调用会弹出 UI 确认框。sub-agent 会话里的 `ask` 会转发到父会话，因此本配置的 [pi-subagents](#subagents) 操作走同一套策略。
+[@gotgenes/pi-permission-system](https://pi.dev/packages/@gotgenes/pi-permission-system) 在 agent 与每次工具、bash、MCP、skill 调用之间放一道确定性权限闸门。三种状态（`allow` / `deny` / `ask`）加四层权限面（`path` → `external_directory` → 工具级规则 → `bash` 规则）覆盖了编码 agent 的大部分操作；没有预先放行的调用会弹出 UI 确认框。后台子 agent（`async: true`）默认会加载这道闸门，并把 `ask` 转发到父会话；本地前台子 agent 不加载 ambient 扩展，因此不受该策略约束，需要闸门的委派请用后台子 agent。
 
-建议**全局安装**。把下面这段粘贴到 pi：
+建议**按项目安装**（不推荐全局安装，策略属于单个仓库）。在要加权限闸门的项目根目录启动 pi，粘贴：
 
 ```
 Read the installation guide and follow it:
 https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/installation-permission-system.md
 ```
 
-装好后编辑 `~/.pi/agent/extensions/pi-permission-system/config.json` 写你的策略——先用指南里的安全默认（deny `.env`、bash 默认 ask、cwd 外目录 ask），再按需收紧。
+装好后编辑该项目的 `.pi/extensions/pi-permission-system/config.json` 写你的策略——先用指南里的安全默认（deny `.env`、bash 默认 ask、cwd 外目录 ask），再按需收紧。
 
 ### agent-browser
 

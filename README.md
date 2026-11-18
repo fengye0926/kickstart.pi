@@ -36,7 +36,7 @@ Most "AI config starter" repos give you a finished product. You get power, but y
 - Every guide is short and focused on one component
 - Every decision is explained, not just shown
 - It documents only the components this setup actually uses — no catalog of things you don't run
-- Everything installs at the **global** level (`~/.pi/agent/`), so one install covers every project
+- Everything installs at the **global** level (`~/.pi/agent/`), so one install covers every project — except [pi-permission-system](docs/installation-permission-system.md), which installs per project because its policy belongs to one repository
 - It's a starting point, not a framework — add your own settings, delete what's unused
 
 ---
@@ -93,7 +93,7 @@ kickstart.pi/
     ├── installation-rtk.md                   ← token-saving bash rewriter (global)
     ├── installation-matt-pocock-skills.md    ← engineering skills (global)
     ├── installation-subagents.md             ← pi-subagents (global)
-    ├── installation-permission-system.md     ← permission gates for tools, bash, MCP, skills (global)
+    ├── installation-permission-system.md     ← permission gates for tools, bash, MCP, skills (project-local)
     ├── installation-rpiv-todo.md             ← persistent todo panel (global)
     ├── installation-ask-user-question.md     ← structured question dialogs (global)
     ├── installation-pi-lsp.md                ← targeted LSP diagnostics and fixes (global)
@@ -110,7 +110,7 @@ That's it. No `settings.json`, no agents, no bundled extensions — just the gui
 1. **Read `README.md` from top to bottom** — understand the philosophy and what's available.
 2. **Decide what goes in your `~/.pi/agent/settings.json`** — this repo ships no config by design. Set your preferred provider, model, and theme; pi walks you through this on first launch.
 3. **Configure the three MCP servers** — Pi has native MCP support; follow Step 2 and Step 3 of [`docs/installation.md`](docs/installation.md). They're what the global `AGENTS.md` queries.
-4. **Install the global add-ons you want** — [pi-open-tui](docs/installation-open-tui.md), [rtk](docs/installation-rtk.md), [mattpocock/skills](docs/installation-matt-pocock-skills.md), [pi-subagents](docs/installation-subagents.md), [pi-permission-system](docs/installation-permission-system.md), [rpiv-todo](docs/installation-rpiv-todo.md), [ask-user-question](docs/installation-ask-user-question.md), [pi-lsp](docs/installation-pi-lsp.md), [agent-browser](docs/installation-agent-browser.md), and the bundled [design-image-to-code](docs/installation-design-image-to-code.md). Use `pi list` to see what's installed and `pi config` to enable or disable resources.
+4. **Install the add-ons you want** — [pi-open-tui](docs/installation-open-tui.md), [rtk](docs/installation-rtk.md), [mattpocock/skills](docs/installation-matt-pocock-skills.md), [pi-subagents](docs/installation-subagents.md), [pi-permission-system](docs/installation-permission-system.md), [rpiv-todo](docs/installation-rpiv-todo.md), [ask-user-question](docs/installation-ask-user-question.md), [pi-lsp](docs/installation-pi-lsp.md), [agent-browser](docs/installation-agent-browser.md), and the bundled [design-image-to-code](docs/installation-design-image-to-code.md). All are global except pi-permission-system, which you install per project. Use `pi list` to see what's installed and `pi config` to enable or disable resources.
 5. **Customize the global `AGENTS.md`** — MCP usage hints, language preference, working style, skill routing.
 6. **Add project-level `AGENTS.md`** in repos that need it — project structure, tech stack, coding conventions.
 7. **Create your own prompt templates** in `.pi/prompts/` for repetitive workflows (`/your-command`).
@@ -260,16 +260,16 @@ Then `/subagents-fleet` to inspect, steer, or stop running children, and `/subag
 
 ### pi-permission-system
 
-[@gotgenes/pi-permission-system](https://pi.dev/packages/@gotgenes/pi-permission-system) puts a deterministic permission gate between the agent and every tool, bash, MCP, and skill call. Three states (`allow` / `deny` / `ask`) and four layered surfaces (`path` → `external_directory` → per-tool patterns → `bash` patterns) cover most of what a coding agent can do; anything not pre-approved raises a UI dialog. `ask` prompts from sub-agent sessions are forwarded to the parent, so this setup's [pi-subagents](#subagents) operations run under the same policy.
+[@gotgenes/pi-permission-system](https://pi.dev/packages/@gotgenes/pi-permission-system) puts a deterministic permission gate between the agent and every tool, bash, MCP, and skill call. Three states (`allow` / `deny` / `ask`) and four layered surfaces (`path` → `external_directory` → per-tool patterns → `bash` patterns) cover most of what a coding agent can do; anything not pre-approved raises a UI dialog. Background sub-agents (`async: true`) load the gate by default and forward their `ask` prompts to the parent; local foreground sub-agents run without ambient extensions and therefore outside this gate, so delegate gated work as a background child.
 
-Install at the **global** level. Paste this into pi:
+Install it **per project** — a global install is not recommended, because the policy belongs to one repository. Run pi from the project root you want gated, then paste this into pi:
 
 ```
 Read the installation guide and follow it:
 https://raw.githubusercontent.com/fengye0926/kickstart.pi/refs/heads/main/docs/installation-permission-system.md
 ```
 
-Then edit `~/.pi/agent/extensions/pi-permission-system/config.json` to define your policy — start from the safe defaults in the guide (deny `.env`, `ask` bash, `ask` outside-cwd) and tighten from there.
+Then edit `.pi/extensions/pi-permission-system/config.json` in that project to define your policy — start from the safe defaults in the guide (deny `.env`, `ask` bash, `ask` outside-cwd) and tighten from there.
 
 ### agent-browser
 

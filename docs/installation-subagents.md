@@ -43,6 +43,15 @@ A practical default loop for implementation work is `clarify → scout → worke
 
 Foreground runs stream progress in the conversation; background runs keep working after control returns to you. While work is active, a persistent FleetView sits below the editor, and `/subagents-fleet` opens the full inspector. You can also just ask: *"Show me the current async runs."*
 
+## Permission gates
+
+Foreground and background children load different extensions, which decides whether a policy extension such as [pi-permission-system](installation-permission-system.md) gates them:
+
+- **Foreground children** run inside the parent Pi process and never load the parent's ambient extensions. A globally or project-installed permission gate is therefore absent, and its path and bash rules do not apply to the child.
+- **Background children** (`async: true`) run in a detached runner that loads ambient extensions (unless the agent definition sets `extensions` or a capability ceiling denies them). The gate is present, and its `ask` prompts are forwarded to the parent dialog.
+
+If a delegated task must run under your permission policy, run it as a background child.
+
 ## Configure
 
 Optional. Config lives at `~/.pi/agent/extensions/subagent/config.json`; without the file the defaults apply. Keys cover model and thinking defaults, concurrency, per-run spawn limits (`maxSubagentSpawnsPerRun`, default 64), and watchdog options. The package's `docs/configuration.md` lists every key and environment variable.

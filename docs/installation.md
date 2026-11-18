@@ -120,14 +120,14 @@ When you install the bundled skill (see [Optional Extras](#optional-extras)), ad
 
 ## Tip
 
-That's the core install. Everything else in this document is optional, and everything below installs at the **global** level — one install covers every project:
+That's the core install. Everything else in this document is optional. Everything below installs at the **global** level — one install covers every project — except [pi-permission-system](installation-permission-system.md), which installs per project so its policy stays with the repository:
 
 - **Beautification** — [pi-open-tui](installation-open-tui.md)
 - **Token saving** — [rtk](installation-rtk.md)
 - **Agentic workflow** — [mattpocock/skills](installation-matt-pocock-skills.md)
 - **Session interaction** — [rpiv-todo](installation-rpiv-todo.md), [ask-user-question](installation-ask-user-question.md)
 - **Code intelligence** — [pi-lsp](installation-pi-lsp.md)
-- **Additional features** — [pi-subagents](installation-subagents.md), [pi-permission-system](installation-permission-system.md), [agent-browser](installation-agent-browser.md), [design-image-to-code](installation-design-image-to-code.md)
+- **Additional features** — [pi-subagents](installation-subagents.md), [pi-permission-system](installation-permission-system.md) (project-local), [agent-browser](installation-agent-browser.md), [design-image-to-code](installation-design-image-to-code.md)
 
 Take what fits your workflow, or skip ahead and start using pi.
 
@@ -169,6 +169,6 @@ kickstart.pi is meant to be understood, not just installed.
 **Additional features:**
 
 - **[`docs/installation-subagents.md`](installation-subagents.md)** — delegate work to focused child agents (scout / worker / reviewer / oracle)
-- **[`docs/installation-permission-system.md`](installation-permission-system.md)** — deterministic allow / ask / deny gates for tools, bash, MCP, and skills
+- **[`docs/installation-permission-system.md`](installation-permission-system.md)** — deterministic allow / ask / deny gates for tools, bash, MCP, and skills (per project)
 - **[`docs/installation-agent-browser.md`](installation-agent-browser.md)** — browser automation via CDP (global skill)
 - **[`docs/installation-design-image-to-code.md`](installation-design-image-to-code.md)** — the bundled design-image-to-code skill

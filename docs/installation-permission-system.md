@@ -2,23 +2,27 @@
 
 [@gotgenes/pi-permission-system](https://pi.dev/packages/@gotgenes/pi-permission-system) is a permission enforcement extension: it gates tool, bash, MCP, and skill calls against a single policy file. Every decision is one of `allow` / `deny` / `ask`, and the policy is layered — `path` → `external_directory` → per-tool patterns → `bash` patterns — with a UI confirmation dialog for anything that isn't pre-approved.
 
-> **Sub-agents inherit the same policy.** This setup runs [`pi-subagents`](https://pi.dev/packages/pi-subagents), whose children execute as non-UI sessions. The permission system forwards `ask` prompts from those sessions up to the parent's dialog, so a child's tool calls are gated by the same rules as the main agent — no separate configuration. Verify it once with step 4 below.
+> **Sub-agents: background yes, foreground no.** Background subagents (`async: true`) run in a detached runner that loads ambient extensions by default; the permission system detects their `PI_SUBAGENT_CHILD` / `PI_SUBAGENT_PARENT_SESSION` markers and forwards `ask` prompts to the parent dialog, so they follow the same policy. Local foreground subagents run inside the parent process and `pi-subagents` deliberately does not load ambient extensions into them, so this gate is absent — a foreground child's tool calls are **not** gated by this policy. Delegate work that needs the gate to a background subagent. Verify with step 4 below.
 
 ## Install
 
+Run this from the project root you want gated:
+
 ```bash
-pi install npm:@gotgenes/pi-permission-system
+pi install npm:@gotgenes/pi-permission-system -l
 ```
 
-This adds the extension to your global pi settings (`~/.pi/agent/settings.json`). Pi auto-discovers it on startup.
+`-l` (`--local`) writes the package declaration to `.pi/settings.json` in that project instead of `~/.pi/agent/settings.json`, and pi keeps the package under the project's `.pi/npm/`. The gate then exists only in projects where you install it. A global install is not recommended for this extension: the policy belongs to one repository, so one project's rules and risk posture should not silently govern another.
 
-> Install at the **global** level: the policy file applies to every session. Project-level overrides live in `<cwd>/.pi/extensions/pi-permission-system/config.json`.
+> **The project must be trusted.** Pi loads project packages only after project trust is resolved: the first run in the directory asks, and `/trust` saves the decision for future runs. Declining trust skips `.pi/settings.json` and the policy file, so no gate runs in that session. Print, JSON, and RPC runs have no trust prompt — pass `--approve` (or set `defaultProjectTrust`) or the gate stays off.
 
-> **Project config replaces global rules, it does not merely tighten them.** Scopes merge in precedence order — global → project → global agent → project agent — and a later scope wins: a project `allow` on a pattern overrides a global `deny` on the same pattern. Two things keep that safe: project config loads **only after the directory is trusted**, so an untrusted repository cannot touch your policy at all; and when a non-global scope is present but fails to load or validate, the effective policy fails closed with every `allow` clamped to `ask` instead of silently inheriting the lower scope. Review a repository's permission config before granting it trust.
+> **Project already has protected files?** `.pi/settings.json` and `.pi/extensions/` are protected project resources, so while the directory is untrusted pi refuses to modify project package config — a second install, another project package, or the uninstall below fails with `Project is not trusted. Use --approve to modify local package config.` Add `--approve` to that command, or save trust first with `/trust`.
+
+> **Migrating from a global install?** Remove it first — `pi remove npm:@gotgenes/pi-permission-system` — and delete `~/.pi/agent/extensions/pi-permission-system/`. A global copy runs in every project and still layers its config beneath the project one.
 
 ## Configure
 
-Create the global policy file at `~/.pi/agent/extensions/pi-permission-system/config.json`:
+Create the policy file inside the project — `<project>/.pi/extensions/pi-permission-system/config.json`:
 
 ```jsonc
 {
@@ -42,9 +46,15 @@ Create the global policy file at `~/.pi/agent/extensions/pi-permission-system/co
 
 Even with `bash: "*": "allow"`, the deny list above already covers the commands worth stopping, and it keeps the setup usable: the install flow in [`installation.md`](installation.md) hands an agent a handful of `git` and `cp` commands, and `bash: "*": "ask"` would put a dialog in front of every one of them. Switch the catch-all to `"ask"` only if you would rather review each command.
 
+Without this file the extension still loads but its universal fallback is `ask`, so every tool call prompts. Create the policy before relying on the install.
+
 > `bash` patterns match the **command text**, arguments included, so `"rm -rf *": "deny"` matches the whole invocation and `"cat ~/.ssh/*": "deny"` would match too. Put file-path rules on `path` anyway: that surface is the cross-cutting one, so it covers the file tools and MCP as well as bash, it matches relative and absolute spellings of the same file, and it follows symlinks. A `path` deny is what makes step 1 below hold for `read`, `cat`, and any other route to the same file.
 
-Then restart pi, or run `/reload` in the current session.
+The policy path is resolved from pi's **working directory**, not from the package location: start pi from the project root (the directory containing `.pi/`), not a subdirectory.
+
+> **Project config replaces global rules, it does not merely tighten them.** If a global config also exists (for example from an earlier global install), scopes merge in precedence order — global → project → global agent → project agent — and a later scope wins: a project `allow` on a pattern overrides a global `deny` on the same pattern. Safety comes from trust gating (project config loads only after the directory is trusted) and from fail-closed loading: when a non-global scope is present but fails to load or validate, every `allow` is clamped to `ask` instead of silently inheriting the lower scope. Review a repository's permission config before granting it trust.
+
+Then restart pi from the project root, or run `/reload` in the current session.
 
 ### What each surface does
 
@@ -67,35 +77,39 @@ The layers compose **most-restrictive-wins**: a `path: "deny"` cannot be loosene
 
 ## Verify
 
-In a fresh `pi` session:
+In a fresh `pi` session, started from the project root:
 
 1. Ask the agent to `cat ~/.ssh/id_ed25519` — it should be blocked by the `path` deny.
 2. Ask the agent to read `../some-other-project/README.md` — it should raise an `external_directory: ask` dialog, because the path leaves the cwd. This fires for `cat ../other/README.md` too: the gate reads the paths out of a command, so a `bash` rule allowing `cat` does not bypass the boundary.
 3. Ask the agent to run `rm -rf node_modules` — it should be blocked by `bash: "rm -rf *": "deny"`.
-4. Ask the agent to delegate `rm -rf node_modules` to a sub-agent — the same block (or prompt, under an `ask` rule) should appear in the parent session, confirming that sub-agent asks are forwarded.
+4. Ask the agent to delegate `rm -rf node_modules` to a **background** sub-agent (`async: true`) — the same block (or prompt, under an `ask` rule) should appear in the parent session, confirming that background child asks are forwarded. Do not use a foreground sub-agent for this check: it does not load the gate (see the note under [Install](#install)).
 
-If any of these pass silently, the config isn't being read: double-check the path and that the JSON parses (`jq . ~/.pi/agent/extensions/pi-permission-system/config.json`).
+If any of these pass silently, the gate isn't running or the config isn't being read: confirm you started pi from the project root, the directory is trusted, and the JSON parses (`jq . .pi/extensions/pi-permission-system/config.json`).
 
 ## Customize
 
-- **Project overrides** — drop a `config.json` into `<cwd>/.pi/extensions/pi-permission-system/`. Project config loads only once the directory is trusted — in an untrusted directory only your global policy applies. Within the trusted scope it *replaces* global rules on a pattern collision rather than tightening them, so read the file before you trust the repo (see the note under [Install](#install)).
+- **Global fallback** — a config at `~/.pi/agent/extensions/pi-permission-system/config.json` still layers beneath the project one, for rules you want in every gated project. The project file wins on a pattern collision, so a project `allow` overrides a global `deny` — a global file is a fallback, not a safety net.
 - **Per-agent overrides** — add frontmatter to an agent definition (`~/.pi/agent/agents/<name>.md`) for role-specific policies, e.g. stricter bash rules for an `explore` agent.
 - **Patterns** — `*` is the only wildcard. Approving a similar prompt once makes the dialog offer a generated rule you can reuse.
 
 ## Uninstall
 
-```bash
-pi remove npm:@gotgenes/pi-permission-system
-```
-
-This removes the entry from `~/.pi/agent/settings.json`. The policy file and review logs under `~/.pi/agent/extensions/pi-permission-system/` are left in place — delete them manually for a fully fresh start:
+Run this from the project root:
 
 ```bash
-rm -rf ~/.pi/agent/extensions/pi-permission-system
+pi remove npm:@gotgenes/pi-permission-system -l --approve
 ```
+
+`--approve` trusts the protected `.pi/settings.json` for this command; without it pi refuses to edit project package config. This removes the entry from `.pi/settings.json` and the installed copy under `.pi/npm/`. The policy file is left in place — delete it for a fully fresh start:
+
+```bash
+rm -rf .pi/extensions/pi-permission-system
+```
+
+Review logs always live in the global agent directory, even for project installs: `~/.pi/agent/extensions/pi-permission-system/logs`.
 
 ## Scope
 
-- Adds the permission gate, hides disallowed tools before the agent starts, and forwards `ask` prompts from non-UI child sessions (sub-agents) to the parent UI.
+- Adds the permission gate, hides disallowed tools before the agent starts, and forwards `ask` prompts from background (detached) child sessions to the parent UI. Local foreground subagents never load ambient extensions, so they run outside this gate.
 - Fails closed: an internal gate error blocks the tool rather than letting it through.
 - Does not change the main agent's behavior, system prompt, default tool list, model selection, or session lifecycle — remove the gate and pi behaves exactly as before.
